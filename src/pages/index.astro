@@ -1,0 +1,55 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PostPreview from '@components/PostPreview.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+const recentPosts = allPosts
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 5);
+---
+
+<BaseLayout title="Bassam Adnan">
+  <div class="container">
+    <section class="bio">
+      <h1 class="bio__heading">Bassam Adnan</h1>
+
+      <div class="bio__text">
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
+          incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+          exercitation ullamco laboris.
+        </p>
+        <p>
+          Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
+          fugiat nulla pariatur.
+        </p>
+      </div>
+
+      <ul class="bio__links">
+        <li><a href="https://github.com/bassamadnan" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="https://linkedin.com/in/bassam-adnan" target="_blank" rel="noopener">LinkedIn</a></li>
+      </ul>
+    </section>
+
+    <hr />
+
+    <section>
+      <p class="section-heading">Recent posts</p>
+      {recentPosts.length > 0 ? (
+        <ul class="post-list">
+          {recentPosts.map((post) => (
+            <PostPreview post={post} />
+          ))}
+        </ul>
+      ) : (
+        <p class="text-muted text-sm">No posts yet.</p>
+      )}
+      {allPosts.length > 5 && (
+        <p style="margin-top: 1.5rem;">
+          <a href="/blog">All posts →</a>
+        </p>
+      )}
+    </section>
+  </div>
+</BaseLayout>

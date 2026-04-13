@@ -1,0 +1,26 @@
+---
+/**
+ * Pagefind search UI.
+ * Only functional after `astro build` — pagefind generates its index then.
+ * During `astro dev`, you'll see an empty search box; this is expected.
+ */
+---
+
+<div id="search-wrapper">
+  <div id="search"></div>
+</div>
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+<script src="/pagefind/pagefind-ui.js" is:inline></script>
+<script is:inline>
+  window.addEventListener('DOMContentLoaded', function () {
+    if (typeof PagefindUI !== 'undefined') {
+      new PagefindUI({
+        element: '#search',
+        showSubResults: true,
+        showImages: false,
+        resetStyles: false,
+      });
+    }
+  });
+</script>

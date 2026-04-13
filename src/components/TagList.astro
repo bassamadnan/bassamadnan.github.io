@@ -1,0 +1,24 @@
+---
+interface Props {
+  tags: string[];
+  linkable?: boolean;
+}
+
+const { tags, linkable = true } = Astro.props;
+---
+
+{tags.length > 0 && (
+  <ul class="tag-list">
+    {tags.map((tag) => (
+      <li>
+        {linkable ? (
+          <a href={`/tags/${tag.toLowerCase().replace(/\s+/g, '-')}`} class="tag">
+            {tag}
+          </a>
+        ) : (
+          <span class="tag">{tag}</span>
+        )}
+      </li>
+    ))}
+  </ul>
+)}

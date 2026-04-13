@@ -1,0 +1,46 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PostPreview from '@components/PostPreview.astro';
+import { getCollection } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+
+  // Collect all unique tags
+  const allTags = [...new Set(posts.flatMap((p) => p.data.tags))];
+
+  return allTags.map((tag) => ({
+    params: { tag: tag.toLowerCase().replace(/\s+/g, '-') },
+    props: {
+      tag,
+      posts: posts
+        .filter((p) => p.data.tags.includes(tag))
+        .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()),
+    },
+  }));
+};
+
+const { tag, posts } = Astro.props;
+---
+
+<BaseLayout
+  title={`Posts tagged "${tag}" — Bassam Adnan`}
+  description={`All posts tagged with ${tag}.`}
+>
+  <div class="container">
+    <p class="section-heading">tag</p>
+    <h1>{tag}</h1>
+    <p style="margin-bottom: 2rem; color: var(--text-muted); font-size: var(--text-sm);">
+      {posts.length} post{posts.length === 1 ? '' : 's'}
+      &nbsp;·&nbsp;
+      <a href="/tags">all tags</a>
+    </p>
+
+    <ul class="post-list">
+      {posts.map((post) => (
+        <PostPreview post={post} />
+      ))}
+    </ul>
+  </div>
+</BaseLayout>

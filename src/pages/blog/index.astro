@@ -1,0 +1,50 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PostPreview from '@components/PostPreview.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+const posts = allPosts.sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+// Gather all unique tags
+const allTags = [...new Set(posts.flatMap((p) => p.data.tags))].sort();
+---
+
+<BaseLayout
+  title="Blog — Bassam Adnan"
+  description="Writings on systems programming, distributed systems, Go, C++, and PostgreSQL."
+>
+  <div class="container">
+    <h1>Blog</h1>
+
+    {allTags.length > 0 && (
+      <nav aria-label="Post tags" style="margin-bottom: 2rem;">
+        <p class="section-heading" style="margin-bottom: 0.5rem;">Tags</p>
+        <ul class="tag-list">
+          {allTags.map((tag) => (
+            <li>
+              <a
+                href={`/tags/${tag.toLowerCase().replace(/\s+/g, '-')}`}
+                class="tag"
+              >
+                {tag}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
+
+    {posts.length > 0 ? (
+      <ul class="post-list">
+        {posts.map((post) => (
+          <PostPreview post={post} showTags={true} />
+        ))}
+      </ul>
+    ) : (
+      <p class="text-muted">No posts yet. Check back soon.</p>
+    )}
+  </div>
+</BaseLayout>

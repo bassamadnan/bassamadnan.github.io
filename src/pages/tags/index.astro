@@ -1,0 +1,40 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog', ({ data }) => !data.draft);
+
+// Count posts per tag
+const tagCounts: Record<string, number> = {};
+for (const post of posts) {
+  for (const tag of post.data.tags) {
+    tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
+  }
+}
+
+const tags = Object.entries(tagCounts).sort(([a], [b]) => a.localeCompare(b));
+---
+
+<BaseLayout title="Tags — Bassam Adnan">
+  <div class="container">
+    <h1>Tags</h1>
+
+    {tags.length > 0 ? (
+      <ul class="tag-list" style="margin-top: 1.5rem;">
+        {tags.map(([tag, count]) => (
+          <li>
+            <a
+              href={`/tags/${tag.toLowerCase().replace(/\s+/g, '-')}`}
+              class="tag"
+              title={`${count} post${count === 1 ? '' : 's'}`}
+            >
+              {tag} <span style="opacity: 0.6;">({count})</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="text-muted">No tags yet.</p>
+    )}
+  </div>
+</BaseLayout>

@@ -1,0 +1,31 @@
+---
+const navItems = [
+  { href: '/about',  label: 'about'  },
+  { href: '/blog',   label: 'blog'   },
+  { href: '/search', label: 'search' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="container">
+    <div class="site-header__inner">
+      <a href="/" class="site-header__name">Bassam Adnan</a>
+      <nav aria-label="Main navigation">
+        <ul class="site-nav">
+          {navItems.map(({ href, label }) => (
+            <li>
+              <a
+                href={href}
+                aria-current={currentPath.startsWith(href) ? 'page' : undefined}
+              >
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+  </div>
+</header>

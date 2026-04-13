@@ -1,0 +1,18 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Search from '@components/Search.astro';
+---
+
+<BaseLayout
+  title="Search — Bassam Adnan"
+  description="Search across all blog posts."
+  noIndex={true}
+>
+  <div class="container">
+    <h1>Search</h1>
+    <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: 1rem;">
+      Search across all posts. Only available after building the site.
+    </p>
+    <Search />
+  </div>
+</BaseLayout>
