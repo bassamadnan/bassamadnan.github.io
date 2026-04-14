@@ -1,0 +1,109 @@
+---
+---
+
+<div id="search-modal" class="search-modal" aria-hidden="true" role="dialog" aria-label="Search">
+  <div class="search-modal__backdrop"></div>
+  <div class="search-modal__box">
+    <div id="search-modal-ui"></div>
+  </div>
+</div>
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+<script src="/pagefind/pagefind-ui.js" is:inline></script>
+
+<script is:inline>
+  const modal    = document.getElementById('search-modal');
+  const trigger  = document.getElementById('search-trigger');
+  const backdrop = modal.querySelector('.search-modal__backdrop');
+  let pf;
+
+  function initPagefind() {
+    if (!pf && typeof PagefindUI !== 'undefined') {
+      pf = new PagefindUI({
+        element: '#search-modal-ui',
+        showImages: false,
+        resetStyles: false,
+      });
+    }
+  }
+
+  function openModal(query) {
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    initPagefind();
+
+    setTimeout(() => {
+      const modalInput = modal.querySelector('input[type=text], input[type=search]');
+      if (modalInput) {
+        if (query) {
+          modalInput.value = query;
+          modalInput.dispatchEvent(new Event('input'));
+        }
+        modalInput.focus();
+      }
+    }, 50);
+  }
+
+  function closeModal() {
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    // Clear the header input
+    trigger.value = '';
+  }
+
+  // Open on any keystroke in the header input
+  trigger.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' || e.key === 'Tab') return;
+    openModal('');
+  });
+
+  trigger.addEventListener('input', () => {
+    openModal(trigger.value);
+  });
+
+  // Also open on focus+type
+  trigger.removeAttribute('readonly');
+
+  backdrop.addEventListener('click', closeModal);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      trigger.focus();
+    }
+  });
+</script>
+
+<style>
+  .search-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+  }
+
+  .search-modal[aria-hidden="false"] {
+    display: block;
+  }
+
+  .search-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(28, 27, 25, 0.5);
+  }
+
+  .search-modal__box {
+    position: absolute;
+    top: 10vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(600px, 90vw);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: var(--space-4);
+    max-height: 75vh;
+    overflow-y: auto;
+  }
+</style>
