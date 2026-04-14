@@ -29,6 +29,7 @@ const isoDate = pubDate.toISOString();
 ---
 
 <li class="post-list__item">
+  <a href={`/blog/${post.slug}`} class="post-list__link" tabindex="-1" aria-hidden="true"></a>
   <h2 class="post-list__title">
     <a href={`/blog/${post.slug}`}>{title}</a>
   </h2>

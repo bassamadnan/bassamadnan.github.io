@@ -2,22 +2,24 @@
 import BaseLayout from './BaseLayout.astro';
 import TagList from '@components/TagList.astro';
 import GiscusComments from '@components/GiscusComments.astro';
-import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
+import type { CollectionEntry, MarkdownHeading } from 'astro:content';
 
 interface Props {
   post: CollectionEntry<'blog'>;
+  headings: MarkdownHeading[];
 }
 
-const { post } = Astro.props;
-const { title, description, pubDate, updatedDate, tags, category } = post.data;
+const { post, headings } = Astro.props;
+const toc = headings.filter((h) => h.depth <= 3);
+const { title, description, pubDate, tags, category } = post.data;
+
+const words = post.body.trim().split(/\s+/).length;
+const fast = Math.max(1, Math.round(words / 250));
+const slow = Math.max(1, Math.round(words / 150));
+const readingTime = fast === slow ? `${fast} min` : `${fast}–${slow} min`;
 
 const formattedDate = pubDate.toLocaleDateString('en-US', {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-});
-
-const formattedUpdated = updatedDate?.toLocaleDateString('en-US', {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
@@ -25,27 +27,188 @@ const formattedUpdated = updatedDate?.toLocaleDateString('en-US', {
 ---
 
 <BaseLayout title={`${title} — Bassam Adnan`} description={description}>
-  <div class="container">
-    <article>
-      <header class="post-header">
-        <h1 class="post-header__title">{title}</h1>
-        <div class="post-header__meta">
-          <time datetime={pubDate.toISOString()}>{formattedDate}</time>
-          {formattedUpdated && (
-            <span>updated {formattedUpdated}</span>
-          )}
-          {category && (
-            <span>{category}</span>
-          )}
-        </div>
-        {tags.length > 0 && <TagList tags={tags} />}
-      </header>
+  <div class="container container--wide">
+    <div class="post-layout">
 
-      <div class="prose" data-pagefind-body>
-        <slot />
-      </div>
-    </article>
+      <article class="post-content">
+        <header class="post-header">
+          <h1 class="post-header__title">{title}</h1>
+        </header>
+
+        <div class="prose" data-pagefind-body>
+          <slot />
+        </div>
+      </article>
+
+      <aside class="post-sidebar">
+
+        <div class="post-sidebar__section">
+          <span class="post-sidebar__label">Date</span>
+          <span class="post-sidebar__value"><time datetime={pubDate.toISOString()}>{formattedDate}</time></span>
+        </div>
+
+        <div class="post-sidebar__section">
+          <span class="post-sidebar__label">Reading time</span>
+          <span class="post-sidebar__value">{readingTime}</span>
+        </div>
+
+        {tags.length > 0 && (
+          <div class="post-sidebar__section">
+            <span class="post-sidebar__label">Tags</span>
+            <TagList tags={tags} />
+          </div>
+        )}
+
+        {toc.length > 0 && (
+          <div class="post-sidebar__section">
+            <span class="post-sidebar__label">Contents</span>
+            <nav class="toc">
+              {toc.map((h) => (
+                <a
+                  href={`#${h.slug}`}
+                  class="toc__item"
+                  data-heading={h.slug}
+                  data-depth={h.depth}
+                >
+                  {h.text}
+                </a>
+              ))}
+            </nav>
+          </div>
+        )}
+
+
+      </aside>
+    </div>
 
     <GiscusComments />
   </div>
 </BaseLayout>
+
+<script>
+  // Bold the active ToC heading using IntersectionObserver
+  const headingEls = document.querySelectorAll('.prose h2, .prose h3');
+  const tocLinks   = document.querySelectorAll<HTMLAnchorElement>('.toc__item');
+
+  if (headingEls.length && tocLinks.length) {
+    let current = '';
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) current = entry.target.id;
+        }
+        tocLinks.forEach((link) => {
+          link.classList.toggle('toc__item--active', link.dataset.heading === current);
+        });
+      },
+      { rootMargin: '0px 0px -60% 0px' }
+    );
+
+    headingEls.forEach((el) => observer.observe(el));
+  }
+</script>
+
+<style>
+  .post-layout {
+    display: grid;
+    grid-template-columns: 1fr 180px;
+    gap: var(--space-8);
+    align-items: start;
+    padding: var(--space-8) 0;
+  }
+
+  .post-sidebar {
+    position: sticky;
+    top: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .post-sidebar__label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: var(--space-1);
+  }
+
+  .post-sidebar__value {
+    font-size: 0.8rem;
+  }
+
+  .post-sidebar__section {
+    font-size: 0.8rem;
+  }
+
+  /* ToC */
+  .toc {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-left: 2px solid var(--border);
+  }
+
+  .toc__item {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    line-height: 1.5;
+    padding: 0.2rem 0 0.2rem 0.75rem;
+    border-left: 2px solid transparent;
+    margin-left: -2px;
+    transition: color 0.1s;
+  }
+
+  .toc__item[data-depth="3"] {
+    padding-left: 1.25rem;
+    font-size: 0.8rem;
+  }
+
+  .toc__item:hover {
+    color: var(--accent);
+  }
+
+  .toc__item--active {
+    color: var(--text);
+    font-weight: 600;
+    border-left-color: var(--accent);
+  }
+
+  /* Recent posts */
+  .post-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .post-nav__item {
+    font-size: var(--text-sm);
+    line-height: 1.4;
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    display: block;
+  }
+
+  .post-nav__item:hover {
+    color: var(--accent-dark);
+  }
+
+  @media (max-width: 640px) {
+    .post-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .post-sidebar {
+      position: static;
+      border-top: 1px solid var(--border);
+      padding-top: var(--space-6);
+      order: -1;
+    }
+  }
+</style>

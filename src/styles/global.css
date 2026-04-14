@@ -263,23 +263,27 @@ main {
   color: var(--text-muted);
 }
 
-.search-input-wrap:focus-within {
-  border-color: var(--accent);
-  color: var(--accent);
-}
 
 .search-input {
   border: none;
   outline: none;
+  box-shadow: none;
   background: none;
   font-family: var(--font-body);
   font-size: var(--text-sm);
   color: var(--text);
   width: 120px;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .search-input::placeholder {
   color: var(--text-muted);
+}
+
+.search-input::-webkit-search-decoration,
+.search-input::-webkit-search-cancel-button {
+  display: none;
 }
 
 /* ── Site footer ────────────────────────────────────────── */
@@ -349,6 +353,18 @@ main {
 .post-list__item {
   padding: var(--space-4) 0;
   border-bottom: 1px solid var(--border);
+  position: relative;
+  cursor: pointer;
+}
+
+.post-list__link {
+  position: absolute;
+  inset: 0;
+}
+
+.post-list__item:hover .post-list__title a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 
@@ -398,6 +414,12 @@ main {
   color: var(--text-muted);
   margin-top: var(--space-1);
   margin-bottom: 0;
+}
+
+.post-list__readmore {
+  font-size: var(--text-sm);
+  margin-top: var(--space-2);
+  display: inline-block;
 }
 
 /* ── Tags ───────────────────────────────────────────────── */
@@ -545,6 +567,40 @@ main {
   --pagefind-ui-border-width: 1px;
   --pagefind-ui-border-radius: 3px;
   --pagefind-ui-font: var(--font-body);
+}
+
+/* ── Post navigation ────────────────────────────────────── */
+
+.post-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-6);
+  margin-top: var(--space-12);
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--border);
+}
+
+.post-nav__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-width: 45%;
+}
+
+.post-nav__item--next {
+  text-align: right;
+  margin-left: auto;
+}
+
+.post-nav__label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.post-nav__item a {
+  font-size: var(--text-sm);
+  font-weight: 600;
 }
 
 /* ── Giscus comments ────────────────────────────────────── */

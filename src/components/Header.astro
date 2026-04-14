@@ -1,24 +1,28 @@
 ---
 const navItems = [
-  { href: '/about', label: 'about' },
-  { href: '/blog',  label: 'blog'  },
+  { href: '/about',                             label: 'about',    external: false },
+  { href: 'https://github.com/bassamadnan',     label: 'github',   external: true  },
+  { href: 'https://linkedin.com/in/bassam-adnan', label: 'linkedin', external: true  },
+  { href: '/resume.pdf',                        label: 'resume',   external: true  },
 ];
 
 const currentPath = Astro.url.pathname;
 ---
 
 <header class="site-header">
-  <div class="container">
+  <div class="container container--wide">
     <div class="site-header__inner">
-      <a href="/" class="site-header__name">Bassam Adnan</a>
+      <a href="/" class="site-header__name">Bassam</a>
       <div class="site-header__right">
         <nav aria-label="Main navigation">
           <ul class="site-nav">
-            {navItems.map(({ href, label }) => (
+            {navItems.map(({ href, label, external }) => (
               <li>
                 <a
                   href={href}
-                  aria-current={currentPath.startsWith(href) ? 'page' : undefined}
+                  aria-current={!external && currentPath.startsWith(href) ? 'page' : undefined}
+                  target={external ? '_blank' : undefined}
+                  rel={external ? 'noopener' : undefined}
                 >
                   {label}
                 </a>
@@ -29,10 +33,11 @@ const currentPath = Astro.url.pathname;
         <div class="search-input-wrap">
           <input
             id="search-trigger"
-            type="search"
+            type="text"
             placeholder="Search…"
             class="search-input"
             autocomplete="off"
+            spellcheck="false"
             readonly
           />
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

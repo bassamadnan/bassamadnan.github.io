@@ -16,7 +16,7 @@ const allTags = [...new Set(posts.flatMap((p) => p.data.tags))].sort();
   title="Blog — Bassam Adnan"
   description="Writings on systems programming, distributed systems, Go, C++, and PostgreSQL."
 >
-  <div class="container">
+  <div class="container container--wide">
     <h1>Blog</h1>
 
     {allTags.length > 0 && (
